@@ -1,150 +1,144 @@
-# Ansible Best Practises
+# heshop-ansible-infrastructure
 
-If infrastructures are to be treated as a code than projects that manage them must be treated as software projects. As your infrastructure code gets bigger and bigger you have more problems to deal with it. Code layout, variable precedence, small hacks here and there. Therefore, organization of your code is very important, and in this repository you can find some of the best practices (in our opinion) to manage your infrastructure code. Problems that are addressed are:
+本文档定义了Heshop基于Ansible的架构安装文档。
 
-* Overall organization
-* How to manage external roles
-* Usage of variables
-* Naming
-* Staging
-* Complexity of plays
-* Encryption of data (e.g. passwords, certificates)
-* Installation of ansible and module dependencies
+## 文档说明 ##
+
+## 需求设计 ##
 
 
-## TL;DR
-* Do not manage external roles in your repository manually, use ansible-galaxy
-* Do not use pre_task, task or post_tasks in your play, use roles to reuse the code
-* Keep all your variables in one place, if possible
-* Do not use variables in your play
-* Use variables in the roles instead of hard-coding
-* Keep the names consistent between groups, plays, variables, and roles
-* Different environments (development, test, production) must be close as possible, if not equal
-* Do not put your password or certificates as plain text in your git repo, use ansible-vault for encrypting
-* Use tags in your play
-* Keep all your ansible dependencies in a single place and make the installation dead-simple
+### 商品中心安装 ###
+
+#### 基础部署依赖关系检查 ####
+  * Java环境检查
+  * Java环境版本检查
+  * Maven环境检查
+  * Maven环境版本检查
+#### 安装环境初使化配置 ####
+  * 用户账户配置
+  * 用户权限配置
+  * 目录初使化
+  * Java环境安装
+  * Java环境变量配置
+  * Java环境安装
+  * Maven环境变量配置
+#### 商品中心代码构建 ####
+  * 代码下载
+  * 工程构建
+  * 工程部署依赖调整
+  * 工程部署配置调整
+  * 工程构建过程反馈
+  
+#### 工程部署完成 ####
+  * 应用部署完成环境检查
+
+### 发布平台安装 ###
+#### 基础部署依赖关系检查 ####
+
+#### 基础部署依赖关系安装 ####
+
+#### 发布平台代码下载 ####
+
+#### 工程构建依赖检查 ####
+
+#### 工程构建 ####
+
+#### 工程部署依赖检查 ####
+
+#### 工程部署配置调整 ####
+
+#### 工程部署完成 ####
 
 
-## 1. Directory Layout
-This is the directory layout of this repository with explanation.
+### 中间件安装 ###
+#### 基础部署依赖关系检查 ####
+
+#### 基础部署依赖关系安装 ####
+
+#### 安装环境初使化配置 ####
+
+#### 中间件安装件下载 ####
+
+#### 中间件部署 ####
+
+#### 中间件部署配置 ####
+
+#### 中间件部署完成 ####
 
 
-    production.ini            # inventory file for production stage
-    development.ini           # inventory file for development stage
-    test.ini                  # inventory file for test stage
-    vpass                     # ansible-vault password file
-                              # This file should not be committed into the repository
-                              # therefore file is in ignored by git
-    group_vars/
-        all/                  # variables under this directory belongs all the groups
-            apt.yml           # ansible-apt role variable file for all groups
-        webservers/           # here we assign variables to webservers groups
-            apt.yml           # Each file will correspond to a role i.e. apt.yml
-            nginx.yml         # ""
-        postgresql/           # here we assign variables to postgresql groups
-            postgresql.yml    # Each file will correspond to a role i.e. postgresql
-            postgresql-password.yml   # Encrypted password file
-    plays/
-        ansible.cfg           # Ansible.cfg file that holds all ansible config
-        webservers.yml        # playbook for webserver tier
-        postgresql.yml        # playbook for postgresql tier
+### 数据库安装 ###
+#### 基础部署依赖关系检查 ####
 
-    roles/
-        roles_requirements.yml# All the information about the roles
-        external/             # All the roles that are in git or ansible galaxy
-                              # Roles that are in roles_requirements.yml file will be downloaded into this directory
-        internal/             # All the roles that are not public
+#### 基础部署依赖关系安装 ####
 
-    extension/
-        setup/                 # All the setup files for updating roles and ansible dependencies
+#### 数据库安装 ####
 
+#### 数据库优化修改配置 ####
 
-## 2. How to Manage Roles
-It is a bad habit to manage the roles that are developed by other developers, in your git repository manually. It is also important to separate them so that you can distinguish those that are external and can be updated vs those that are internal. Therefore, you can use ansible-galaxy for installing the roles you need, at the location you need, by simply defining them in the roles_requirements.yml:
+#### 工程部署配置调整 ####
 
-```
----
-- src: ANXS.build-essential
-  version: "v1.0.1"
-```
+#### 工程部署完成 ####
 
-Roles can be downloaded/updated with this command:
+#### 数据库脚本初使化 ####
 
-```
-./extensions/setup/role_update.sh
-```
-This command will delete all external roles and download everything from scratch. It is a good practice, as this will not allow you to make changes in the roles.
+### 应用整合及启动脚本 ###
 
+### 多环境支持 ###
 
-## 3. Keep your plays simple
-If you want to take the advantage of the roles, you have to keep your plays simple.
-Therefore do not add any tasks in your main play. Your play should only consist of the list of roles that it depends on. Here is an example:
+#### 不同服务器架构 ####
 
-```
----
+#### 不同服务器环境调整 ####
 
-- name: postgresql.yml | All roles
-  hosts: postgresql
-  sudo: True
+## 安装 ##
 
-  roles:
-    - { role: common,                   tags: ["common"] }
-    - { role: ANXS.postgresql,          tags: ["postgresql"] }
-```
+## 测试 ##
 
-As you can see there are also no variables in this play, you can use variables in many different ways in ansible, and to keep it simple and easier to maintain do not use variables in plays. Furthermore, use tags, they give wonderful control over role execution.
+### 测试环境搭建 ###
 
+`
+cd vagrant
+vagrant up
+`
+以上命令会启动6台coreos服务器，用于安装部署整体环境的服务器；如果想要修改创建的服务器数量，可以修改 ~Vagrantfile~ 文件中的$num_instances的数量即可；
+It will start 6 coreos server, you could absolute change the $num_instances if you do not want to start up 6 server. 
 
-## 4. Stages
-Most likely you will need different stages (e.g. test, development, production) for the product you are either developing or helping to develop. A good way to manage different stages is to have multiple inventory files. As you can see in this repository, there are three inventory files. Each stage you have must be identical as possible, that also means, you should try to use few as possible host variables. It is best to not use at all.
+### 插入服务器的免登录key ###
 
+此命令适用于Mac及Linux环境下进行创建，暂时不支持windows
 
-## 5. Variables
-Variables are wonderful, that allows you to use all this existing code by just setting some values. Ansible offers many different ways to use variables. However, soon as your project starts to get bigger, and more you spread variables here and there, more problems you will encounter. Therefore it is good practice to keep all your variables in one place, and this place happen to be group_vars. They are not host dependent, so it will help you to have a better staging environment as well. Furthermore, if you have internal roles that you have developed, keep the variables out of them as well, so you can reuse them easily.
+#### Automatic insert into iso ####
 
+Change the ~vagrant/Vangrantfile~ there is a variable named: "insert_ssh_key_into_iso", you may change it to true, and make sure your current working environment is Linux, which the insert_ssh_keys_into_iso.sh can be run.
 
-## 6. Name consistency
-If you want to maintain your code, keep the name consistency between your plays, inventories, roles and group variables. Use the name of the roles to separate different variables in each group. For instance, if you are using the role nginx under webservers play, variables that belong to nginx should be located under *group_vars/webservers/nginx.yml*. What this effectively means is that  group_vars supports directory and every file inside the group will be loaded. You can, of course, put all of them in a single file as well, but this is messy, therefore don't do it.
+#### Manually insert ####
 
+`
+vagrant ssh core-0$num # to login into virtual server one by one
+sudo passwd core  # to change the password
+`
+Then change password value in the copy_ssh_keys.sh file, execute:
 
-## 7. Encrypting Passwords and Certificates
-It is most likely that you will have a password or certificates in your repository. It is not a good practise to put them in a repository as plain text. You can use [ansible-vault](http://docs.ansible.com/playbooks_vault.html) to encrypt sensitive data. You can refer to [postgresql-password.yml](https://github.com/enginyoyen/ansible-best-practises/blob/master/group_vars/postgresql/postgresql-password.yml) in group variables to see the encrypted file and [postgresql-password-plain.yml](https://github.com/enginyoyen/ansible-best-practises/blob/master/group_vars/postgresql/postgresql-password-plain.yml) to see the plain text file, commented out.
-To decrypt the file, you need the vault password, which you can place in your root directory but it MUST NOT be committed to your git repository. You should share the password with you coworkers with some other method than committing to git a repo.
+`
+./copy_ssh_keys.sh 
+`
 
-There is also [git-crypt](https://github.com/AGWA/git-crypt) that allow you to work with a key or GPG. Its more transparent on daily work than `ansible-vault`
+Or if you in MacOS, the script can not be ok, you need to change the ~copy_ssh_keys_onmac.sh~ and execute:
 
+`
+./copy_ssh_keys_onmac.sh
+`
 
-## 8. Project Setup
-As it should be very easy to set-up the work environment, all required packages that ansible needs, as well as ansible should be installed very easily. This will allow newcomers or developers to start using ansible project very fast and easy. Therefore, python_requirements.txt file is located at:
+## Initial the python environment and startup coreos ##
+`
+cd k8s-core-infrastructure
+ansible-galaxy install -r requirements.yml -p ./roles
+ansible-playbook -i inventory/staging/hosts bootstrap-coreos.yml -D
+`
+Which will initial all coreos servers
+Also, you will need to add all coreos virtual servers hostname and their ip address into you hosts file of current working environment.
 
-```
-extensions/setup/python_requirements.txt
-```
-
-This structure will help you to keep your dependencies in a single place, as well as making it easier to install everything including ansible. All you have to do is to execute the setup file:
-
-```
-./extensions/setup/setup.sh
-```
-
-
-# Running the Code
-Code in this repo is functional and tested. To run it, you need to install ansible and all the dependencies. You can do this simply by executing:
-
-```
-./extensions/setup/setup.sh
-```
-
-* If you already have ansible, and you do not want to go through the installation simply create a vpass text file in the root directory and add the secret code (123456)
-* To install roles execute the role_update.sh which will download all the roles
-```
-./extensions/setup/role_update.sh
-```
-* Go to the plays directory and the execute and do not forget to change the host address in the development.ini
-```
-ansible-playbook -i ../development.ini webservers.yml
-```
-
-
-# License
-MIT License.
+## Initial kubernetes environment ##
+`
+ansible-playbook -i inventory/staging/hosts bootstrap-kubernetes.yml -D -e k8s_role_path="./roles/"
+`
+Run to install all kubernetes servers
