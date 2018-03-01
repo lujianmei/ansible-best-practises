@@ -1,0 +1,12 @@
+# from galaxy
+# java install
+- src: robertdebock.bootstrap
+      java_vendor: oracle
+      java_type: jdk
+      java_version: 8
+
+# maven install
+- src: robdyke.maven
+
+# install mysql
+- src: 

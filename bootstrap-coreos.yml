@@ -1,0 +1,78 @@
+---
+- name: check java version
+  hosts: local
+  gather_facts: False
+  tasks:
+    - include: "{{playbook_dir}}/roles/"
+  vars:
+      java_vendor: oracle
+      java_type: jdk
+      java_version: 8
+
+
+- name: install java 
+  hosts: local
+  gather_facts: False
+  roles:
+    - tnluu.robertdebock_java
+ tasks:
+    - include: "{{playbook_dir}}/roles/"
+  vars:
+      java_vendor: oracle
+      java_type: jdk
+      java_version: 8
+
+- name: install mysql
+  hosts: all
+  roles:
+    - bennojoy.mysql
+    - {role: mysql, root_db_pass: foobar, mysql_db: none, mysql_users: none }
+  vars:
+    mysql_port: 3307                 # The port for mysql server to listen
+    mysql_bind_address: &quot;0.0.0.0&quot;    # The bind address for mysql server
+    mysql_root_db_pass: foobar       # The root DB password
+
+- name: change java path
+  hosts: local
+  gather_facts: False
+  tasks:
+    - include: "{{playbook_dir}}/roles/deimosfr.coreos-container-linux/tasks/coreos_offline_image.yml"
+      when: install java
+  vars:
+    ansible_python_interpreter: "/usr/bin/python"
+    coreos_role_path: "{{playbook_dir}}/roles"
+    coreos_image_offline: true
+    coreos_image_version: '1185.5.0'
+    coreos_image_name: 'coreos_production_image.bin.bz2'
+    coreos_image_src_url: "https://stable.release.core-os.net/amd64-usr/{{coreos_image_version}}"
+
+- name: coreos-ansible
+  hosts: k8s-nodes
+  user: core
+  become: yes
+  gather_facts: False
+  roles:
+    - deimosfr.coreos-ansible
+  vars:
+    coreos_ansible_role_path: "{{playbook_dir}}/roles/deimosfr.coreos-ansible"
+
+# First deploy masters to ensure cluster will be ready before workers
+- name: coreos-bootstrap
+  hosts: k8s-masters
+  user: core
+  become: yes
+  roles:
+    - deimosfr.coreos-container-linux
+  vars:
+    coreos_image_base_url: "http://localhost:8000/coreos_images"
+    coreos_ansible_role_path: "{{playbook_dir}}/roles/deimosfr.coreos-ansible"
+
+- name: coreos-bootstrap
+  hosts: k8s-workers
+  user: core
+  become: yes
+  roles:
+    - deimosfr.coreos-container-linux
+  vars:
+    coreos_image_base_url: "http://localhost:8000/coreos_images"
+    coreos_ansible_role_path: "{{playbook_dir}}/roles/deimosfr.coreos-ansible"

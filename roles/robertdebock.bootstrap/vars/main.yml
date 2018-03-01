@@ -1,0 +1,77 @@
+---
+# vars file for bootstrap
+bootstrap_packages:
+  Alpine:
+    - ca-certificates
+    - py-simplejson
+    - shadow
+  Archlinux:
+    - python
+  CentOS-6:
+    - libselinux-python
+    - libsemanage-python
+    - python-simplejson
+    - yum-plugin-ovl
+  CentOS-7:
+    - libselinux-python
+    - libsemanage-python
+    - yum-plugin-ovl
+  Debian:
+    - ca-certificates
+    - python-apt
+    - python-simplejson
+  Fedora:
+    - libselinux-python
+    - libsemanage-python
+    - polkit
+    - python-devel
+    - python-simplejson
+    - python2-dnf
+  openSUSE Leap:
+    - ca-certificates
+    - python-selinux
+  RedHat-6:
+    - libselinux-python
+    - libsemanage-python
+    - python-simplejson
+    - yum-plugin-ovl
+  RedHat-7:
+    - libselinux-python
+    - libsemanage-python
+    - yum-plugin-ovl
+  Ubuntu:
+    - ca-certificates
+    - python-apt
+    - python-simplejson
+
+bootstrap_packages_preview:
+  Alpine:
+    - lvm2
+    - tar
+    - unzip
+  Archlinux:
+    - lvm2
+    - tar
+    - unzip
+  CentOS:
+    - lvm2
+    - tar
+    - unzip
+    - mysql
+    - MySQL-python
+  Debian:
+    - lvm2
+    - tar
+    - unzip
+  Fedora:
+    - lvm2
+    - tar
+    - unzip
+  openSUSE Leap:
+    - lvm2
+    - tar
+    - unzip
+  Ubuntu:
+    - lvm2
+    - tar
+    - unzip

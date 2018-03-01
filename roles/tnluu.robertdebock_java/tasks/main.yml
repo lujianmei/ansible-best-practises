@@ -1,0 +1,26 @@
+---
+# tasks file for java
+- name: install software (package)
+  package:
+    name: "{{ item }}"
+  with_items:
+    - "{{ java_package[ansible_distribution][ansible_distribution_major_version][java_vendor][java_type][java_version]['name'] }}"
+  when:
+    - java_vendor == "openjdk"
+
+- name: install software (unarchive)
+  unarchive:
+    src: "{{ item }}"
+    dest: "{{ java_install_directory }}"
+  with_items:
+    - "{{ java_package[java_vendor][java_type][java_version]['name'] }}"
+  when:
+    - java_vendor == "oracle"
+
+- name: set alternative (tar.gz)
+  alternatives:
+    name: java
+    link: /usr/bin/java
+    path: "{{ java_install_directory }}/{{ java_package[java_vendor][java_type][java_version]['directory'] }}/bin/java"
+  when:
+    - java_vendor == "oracle"
